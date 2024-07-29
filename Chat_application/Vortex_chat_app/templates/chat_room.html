@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat-log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 80%;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #chat-message-input {
+            width: 70%;
+            padding: 10px;
+        }
+        #chat-message-submit {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Room: {{ room.name }}</h1>
+    <div id="chat-log"></div>
+    <input id="chat-message-input" type="text" size="100">
+    <input id="chat-message-submit" type="button" value="Send">
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const chatLog = document.getElementById('chat-log');
+            const chatMessageInput = document.getElementById('chat-message-input');
+            const chatMessageSubmit = document.getElementById('chat-message-submit');
+
+            let chatSocket;
+            let reconnectInterval = 1000; // Initial reconnect interval in milliseconds
+
+            function connectWebSocket() {
+                // Replace 'ws://localhost:8000' with your actual WebSocket server URL
+                chatSocket = new WebSocket('ws://localhost:8000');
+
+                chatSocket.onmessage = function(e) {
+                    const data = JSON.parse(e.data);
+                    chatLog.innerHTML += '<div>' + data.message + '</div>';
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                };
+
+                chatSocket.onerror = function(e) {
+                    console.error('WebSocket error:', e);
+                };
+
+                chatSocket.onclose = function(e) {
+                    console.warn('WebSocket closed:', e);
+                    // Reconnect logic
+                    setTimeout(function() {
+                        console.log('Reconnecting...');
+                        connectWebSocket();
+                    }, reconnectInterval);
+                    // Optional: Increase the reconnect interval up to a maximum
+                    reconnectInterval = Math.min(reconnectInterval * 2, 30000);
+                };
+            }
+
+            chatMessageSubmit.onclick = function(e) {
+                const message = chatMessageInput.value;
+                if (message.trim() !== '') {
+                    chatSocket.send(JSON.stringify({
+                        'message': message
+                    }));
+                    chatMessageInput.value = '';
+                }
+            };
+
+            chatMessageInput.addEventListener('keyup', function(e) {
+                if (e.keyCode === 13) {  // Enter key
+                    chatMessageSubmit.click();
+                }
+            });
+
+            // Establish the initial WebSocket connection
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>

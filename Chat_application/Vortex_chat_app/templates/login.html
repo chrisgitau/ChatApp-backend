@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1c1c1c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #d3d3d3;
+            background-image: url('https://example.com/creative-background.jpg'); /* Replace with an appropriate background image */
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-container {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-in-out;
+            width: 350px;
+            backdrop-filter: blur(10px);
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: transform 0.5s;
+        }
+
+        .login-container:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 32px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-form p {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .password-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .password-container input {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .toggle-password {
+            margin-left: -30px;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .login-button {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            font-weight: 600;
+        }
+
+        .login-button:hover {
+            transform: scale(1.05);
+        }
+
+        .signup-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .signup-link:hover {
+            color: #bbb;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            display: none;
+        }
+
+        .password-feedback {
+            color: red;
+            text-align: center;
+            display: none;
+        }
+
+        .password-feedback.correct {
+            color: green;
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="login-title">Login</h1>
+        <form method="POST" class="login-form" onsubmit="return validateForm()">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p class="password-container">
+                <input type="password" name="password" id="password" placeholder="Password">
+                <span class="toggle-password" onclick="togglePasswordVisibility()">��️</span>
+            </p>
+            <button type="submit" class="login-button">Login</button>
+            <a href="{% url 'signup' %}" class="signup-link">Don't have an Account? Create one</a>
+        </form>
+        <p class="error-message" id="error-message">Please fill in all fields.</p>
+        <p class="password-feedback" id="password-feedback"></p>
+        <p class="note">Note: You only need to enter your password once.</p>
+    </div>
+    <script>
+        function validateForm() {
+            const form = document.querySelector('.login-form');
+            const inputs = form.querySelectorAll('input');
+            let valid = true;
+
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    valid = false;
+                }
+            });
+
+            const errorMessage = document.getElementById('error-message');
+            if (!valid) {
+                errorMessage.style.display = 'block';
+            } else {
+                errorMessage.style.display = 'none';
+            }
+
+            return valid;
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const passwordFeedback = document.getElementById('password-feedback');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                if (passwordInput.value === 'correct_password') { // Replace 'correct_password' with the actual correct password
+                    passwordFeedback.textContent = 'Password is correct';
+                    passwordFeedback.classList.add('correct');
+                    passwordFeedback.classList.remove('error');
+                } else {
+                    passwordFeedback.textContent = 'Wrong password';
+                    passwordFeedback.classList.add('error');
+                    passwordFeedback.classList.remove('correct');
+                }
+                passwordFeedback.style.display = 'block';
+            } else {
+                passwordInput.type = 'password';
+                passwordFeedback.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
